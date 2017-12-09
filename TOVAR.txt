@@ -1,0 +1,6 @@
+5
+111111;Jablká
+222222;Rožok
+333333;Toaletný papier
+444444;Banány
+555555;Bageta
