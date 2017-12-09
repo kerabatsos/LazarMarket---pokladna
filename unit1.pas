@@ -6,13 +6,12 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  LCLType, Buttons, ShellApi, Types;
+  LCLType, Buttons, ExtCtrls, ShellApi, Types;
 type
 
   { TForm1 }
 
   TForm1 = class(TForm)
-    Button1: TButton;
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
@@ -20,16 +19,19 @@ type
     Button6: TButton;
     Button7: TButton;
     Edit2: TEdit;
+    ImageStorno: TImage;
     Label1: TLabel;
     Label2: TLabel;
     ListBox1: TListBox;
     ListBox2: TListBox;
     Memo1: TMemo;
-    procedure Button1Click(Sender: TObject);
+    Timer1: TTimer;
     procedure Button4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure ImageStornoClick(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure Login;
+    procedure Timer1Timer(Sender: TObject);
   private
     { private declarations }
   public
@@ -48,6 +50,7 @@ var
   prihlasenie: textfile;
   menoPokladnika: string;
   menoHeslo: array[1..50] of Loginy;
+  stop: boolean;
 
 implementation
 
@@ -55,10 +58,7 @@ implementation
 
 { TForm1 }
 
-procedure TForm1.Button1Click(Sender: TObject);
-begin
-  Close;
-end;
+
 
 procedure TForm1.Button4Click(Sender: TObject);
 begin
@@ -69,23 +69,38 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-
+   Stop := false;
 
 
    Login;
+
+   if Stop then
+      Timer1.Enabled := True;
+   //meno pokladnika
    Label2.Caption := menoPokladnika;
+
+   //Strono button
+   ImageStorno.Canvas.Brush.Color := clRed;
+   ImageStorno.Canvas.FillRect( ImageStorno.ClientRect );
+   ImageStorno.Canvas.Font.Color := clBlack;
+   ImageStorno.Canvas.Font.Size := 13;
+   ImageStorno.Canvas.TextOut( 53 , 13, 'STORNO');
+
+
    ListBox1.Items.Clear;             //Delete all existing strings
-  ListBox1.Items.Add('First line');
+
+
+   ListBox1.Items.Add('First line');
   ListBox1.Items.Add('Second Line');
   ListBox1.Items.Add('Third Line');
-  ListBox1.Items.Add('First line');
-  ListBox1.Items.Add('Second Line');
-  ListBox1.Items.Add('Third Line');
-  ListBox1.Items.Add('First line');
-  ListBox1.Items.Add('Second Line');
-  ListBox1.Items.Add('Third Line');
-  ListBox1.Items.Add('First line');
-  ListBox1.Items.Add('Second Line');
+end;
+
+procedure TForm1.ImageStornoClick(Sender: TObject);
+begin
+  if MessageDlg('Question', 'Do you wish to Execute?', mtConfirmation,
+   [mbYes, mbNo],0) = mrYes
+  then
+  Close;
 end;
 
 procedure TForm1.ListBox1Click(Sender: TObject);
@@ -110,6 +125,7 @@ var
   q: boolean;
   size, i ,j : integer;
   udaj: string;
+  attempts: integer;
 begin
   AssignFile( prihlasenie , 'pokladnici.txt' );
   Reset( prihlasenie );
@@ -127,25 +143,47 @@ begin
 
 
   q := false;
+  attempts := 1;
 
-  InputQuery( 'LOGIN' , 'Zadajte heslo:' , True , passwordIn );
 
   repeat
-  for j := 1 to size do
-     begin
-          if strtoint( passwordIn ) = menoHeslo[ j ].heslo then
-            begin
-             q := True;
-             menoPokladnika := menoHeslo[ j ].meno;
-             Break;
-            end;
+  if InputQuery( 'LOGIN' , 'Zadajte pin:' , True , passwordIn ) then
+  begin
+    for j := 1 to size do
+       begin
+            if passwordIn = inttostr( menoHeslo[ j ].heslo ) then
+              begin
+               q := True;
+               menoPokladnika := menoHeslo[ j ].meno;
+               Break;
+              end;
       end;
-          if q = false then
+
+      if attempts = 3 then
+         begin
+          ShowMessage( '3 krát ste zadali nesprávne heslo.' );
+          Stop := true;
+          Break;
+         end;
+
+      if passwordIn <> inttostr( menoHeslo[ j ].heslo ) then
             begin
              ShowMessage( 'Nesprávne heslo' );
-             InputQuery( 'LOGIN' , 'Zadajte heslo:' , True , passwordIn );
+             inc( attempts );
+             Continue;
             end;
+  end
+  else
+    begin
+       Stop := true;
+          Break;
+    end;
   until q = True;
+end;
+
+procedure TForm1.Timer1Timer(Sender: TObject);
+begin
+  Close;
 end;
 
 end.
