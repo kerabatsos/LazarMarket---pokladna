@@ -29,9 +29,6 @@ type
     procedure Button4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
-    procedure ListBox1DrawItem(Control: TWinControl; Index: Integer;
-      ARect: TRect; State: TOwnerDrawState);
-    procedure ListBox1SelectionChange(Sender: TObject; User: boolean);
     procedure Login;
   private
     { private declarations }
@@ -67,6 +64,15 @@ begin
    ListBox1.Items.Clear;             //Delete all existing strings
   ListBox1.Items.Add('First line');
   ListBox1.Items.Add('Second Line');
+  ListBox1.Items.Add('Third Line');
+  ListBox1.Items.Add('First line');
+  ListBox1.Items.Add('Second Line');
+  ListBox1.Items.Add('Third Line');
+  ListBox1.Items.Add('First line');
+  ListBox1.Items.Add('Second Line');
+  ListBox1.Items.Add('Third Line');
+  ListBox1.Items.Add('First line');
+  ListBox1.Items.Add('Second Line');
 end;
 
 procedure TForm1.ListBox1Click(Sender: TObject);
@@ -80,27 +86,8 @@ begin
         break;
        end;
    Memo1.Append( ListBox1.Items[itemIndex] );
+   Label1.Caption := ListBox1.Items[itemIndex];
 end;
-
-procedure TForm1.ListBox1DrawItem(Control: TWinControl; Index: Integer;
-  ARect: TRect; State: TOwnerDrawState);
-var
-  myText:string;
-begin
-  Memo1.Append(inttostr( index ));
-  itemIndex := index;
-end;
-
-procedure TForm1.ListBox1SelectionChange(Sender: TObject; User: boolean);
-begin
-
-end;
-
-
-
-
-
-
 
 
 
